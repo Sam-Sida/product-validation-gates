@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tests: Product validation gates</title>
+  <style>
+    body { font: 14px/1.5 system-ui, sans-serif; margin: 24px; color: #1d2433; }
+    h1 { font-size: 20px; }
+    .summary { font-weight: 600; margin: 12px 0; }
+    .pass { color: #1f7a4d; }
+    .fail { color: #b42318; }
+    li { margin: 2px 0; }
+    code { font-size: 12px; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Product validation gates: tests</h1>
+  <p class="summary" id="summary">Running...</p>
+  <ul id="results"></ul>
+  <script type="module">
+    import { run } from './runner.js';
+    const files = [
+      './gates.test.js',
+      './economics.test.js',
+      './decision.test.js',
+      './pack.test.js',
+      './portfolio.test.js',
+      './storage.test.js',
+      './example.test.js',
+      './copy.test.js',
+    ];
+    const results = await run(files);
+    const failed = results.filter((r) => !r.ok);
+    window.__testResults = { total: results.length, failed: failed.length, results };
+    const summary = document.getElementById('summary');
+    summary.textContent = `${results.length - failed.length} passed, ${failed.length} failed, ${results.length} total`;
+    summary.className = 'summary ' + (failed.length ? 'fail' : 'pass');
+    const list = document.getElementById('results');
+    for (const r of results) {
+      const li = document.createElement('li');
+      li.className = r.ok ? 'pass' : 'fail';
+      li.textContent = `${r.ok ? 'PASS' : 'FAIL'}  ${r.file.replace('./', '')}: ${r.name}`;
+      if (!r.ok) {
+        const c = document.createElement('code');
+        c.textContent = '  ' + r.error;
+        li.appendChild(c);
+      }
+      list.appendChild(li);
+    }
+  </script>
+</body>
+</html>

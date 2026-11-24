@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product validation gates: decide which AI ideas earn a build</title>
+  <meta name="description" content="A stage-gate method for deciding which AI product ideas earn a build, with stop rules set up front, an evidence pack, and a decision log. By Samuel Sida.">
+  <meta name="author" content="Samuel Sida">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2318202e'/%3E%3Cpath d='M8 16h4m4 0h4m4 0h0' stroke='%239fc6cf' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the form</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div>
+        <p class="eyebrow">Product validation gates</p>
+        <h1>Decide which AI ideas earn a build</h1>
+        <p class="lede">Five gates, each with a stop rule and a time box set before the work starts. Effort matches the cost of being wrong. The output is a one-page evidence pack: build, stop, or test first.</p>
+      </div>
+      <nav class="header-actions" aria-label="App actions">
+        <button type="button" class="btn" id="btn-example">Load worked example</button>
+        <button type="button" class="btn" id="btn-new">New idea</button>
+        <button type="button" class="btn btn-ghost" id="btn-view" aria-pressed="false">Portfolio metrics</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="intro" aria-label="How this works">
+      <p><strong>How it fits:</strong> most teams already run an idea intake that captures data rights, pain, market size, pricing, and unit costs. These gates add three things on top: stop rules agreed before the work, an evidence pack for the decision, and a decision log that lets you measure the quality of every no.</p>
+      <p class="save-note" id="save-status" role="status">Drafts save in this browser only. Nothing leaves your device.</p>
+    </section>
+
+    <div id="view-gates">
+      <ol class="stepper" id="stepper" aria-label="Gates"></ol>
+
+      <!-- Gate 0: Screen -->
+      <section class="gate" id="gate-g0" data-gate="g0" aria-labelledby="h-g0">
+        <header class="gate-head">
+          <p class="gate-num">Gate 0</p>
+          <h2 id="h-g0">Screen</h2>
+          <p class="gate-purpose" data-purpose="g0"></p>
+        </header>
+        <div class="rules-card" data-rules-for="g0"></div>
+        <div class="grid">
+          <label class="field span-2">Idea name
+            <input type="text" data-path="title" placeholder="e.g. Category trend explainer">
+          </label>
+          <label class="field span-2">One-line description
+            <textarea rows="2" data-path="summary"></textarea>
+          </label>
+          <label class="field span-2">Problem
+            <textarea rows="3" data-path="screen.problem" placeholder="Who has the pain, and what does it cost them today?"></textarea>
+          </label>
+          <label class="field">Who pays (budget owner)
+            <input type="text" data-path="screen.payer">
+          </label>
+          <label class="field">Strategy fit
+            <select data-path="screen.strategyFit">
+              <option value="">Not assessed</option>
+              <option value="yes">Yes</option>
+              <option value="partial">Partial</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+          <label class="field span-2">Data needed
+            <textarea rows="2" data-path="screen.dataNeeded"></textarea>
+          </label>
+          <label class="field">Cost of being wrong
+            <select id="cost-of-wrong">
+              <option value="low">Low: cheap to undo</option>
+              <option value="medium">Medium: a quarter of team time</option>
+              <option value="high">High: client trust or a large build at stake</option>
+            </select>
+            <span class="hint">Sets the default time box for every gate that hasn't started.</span>
+          </label>
+          <label class="field">Blended team cost per day (AUD)
+            <input type="number" min="0" step="100" data-path="screen.costPerDay" data-type="number">
+          </label>
+        </div>
+        <fieldset class="group">
+          <legend>Regulatory compliance</legend>
+          <p class="hint">Is the use case itself allowed? Data handling comes later, in Data and legal.</p>
+          <div class="checks" id="domains"></div>
+          <div class="grid">
+            <label class="field">AI risk tier
+              <select data-path="screen.riskTier">
+                <option value="">Not assessed</option>
+                <option value="minimal">Minimal</option>
+                <option value="limited">Limited (transparency duties)</option>
+                <option value="high">High-risk</option>
+                <option value="prohibited">Prohibited</option>
+              </select>
+              <span class="hint">In the style of risk-based AI rules such as the EU AI Act.</span>
+            </label>
+            <label class="field">Sector or regulator approval needed?
+              <select data-path="screen.approvalNeeded">
+                <option value="">Not assessed</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </label>
+            <label class="field">Is there a compliance path?
+              <select data-path="screen.compliancePath">
+                <option value="">Not assessed</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </label>
+            <label class="field">Markets in scope
+              <input type="text" data-path="screen.markets">
+            </label>
+          </div>
+        </fieldset>
+        <div class="gate-status" data-status-for="g0" aria-live="polite"></div>
+        <div class="gate-nav"><span></span><button type="button" class="btn btn-primary" data-go="g1">Next: Problem</button></div>
+      </section>
+
+      <!-- Gate 1: Problem -->
+      <section class="gate" id="gate-g1" data-gate="g1" aria-labelledby="h-g1" hidden>
+        <header class="gate-head">
+          <p class="gate-num">Gate 1</p>
+          <h2 id="h-g1">Problem</h2>
+          <p class="gate-purpose" data-purpose="g1"></p>
+        </header>
+        <div class="rules-card" data-rules-for="g1"></div>
+        <div class="grid">
+          <label class="field">How often does the pain occur?
+            <select data-path="problem.frequency">
+              <option value="">Not measured</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="rarely">Rarely</option>
+            </select>
+          </label>
+          <label class="field">How severe is it? (1 to 5)
+            <select data-path="problem.severity" data-type="number">
+              <option value="">Not measured</option>
+              <option value="1">1: minor annoyance</option>
+              <option value="2">2: workaround is easy</option>
+              <option value="3">3: costs real time</option>
+              <option value="4">4: costs money or decisions</option>
+              <option value="5">5: blocks the work</option>
+            </select>
+          </label>
+          <label class="field">Clients who share the pain
+            <input type="number" min="0" data-path="problem.clientsSharing" data-type="number">
+          </label>
+          <label class="field">Problem interviews run
+            <input type="number" min="0" data-path="problem.interviews" data-type="number">
+          </label>
+          <label class="field span-2">Proxy: usage of similar existing modules
+            <textarea rows="2" data-path="problem.proxyUsage" placeholder="e.g. 41 of 60 accounts open the closest existing dashboard monthly"></textarea>
+          </label>
+        </div>
+        <div class="gate-status" data-status-for="g1" aria-live="polite"></div>
+        <div class="gate-nav"><button type="button" class="btn" data-go="g0">Back</button><button type="button" class="btn btn-primary" data-go="g2">Next: Data and legal</button></div>
+      </section>
+
+      <!-- Gate 2: Data and legal -->
+      <section class="gate" id="gate-g2" data-gate="g2" aria-labelledby="h-g2" hidden>
+        <header class="gate-head">
+          <p class="gate-num">Gate 2</p>
+          <h2 id="h-g2">Data and legal</h2>
+          <p class="gate-purpose" data-purpose="g2"></p>
+        </header>
+        <div class="rules-card" data-rules-for="g2"></div>
+        <fieldset class="group">
+          <legend>Data rights by user type</legend>
+          <p class="hint">First-party users see their own data. Supplier users, such as one brand, must never see a competitor's detail.</p>
+          <div id="user-types"></div>
+          <button type="button" class="btn btn-small" id="btn-add-user-type">Add user type</button>
+        </fieldset>
+        <div class="grid">
+          <label class="field">Privacy requirements met?
+            <select data-path="data.privacyOk">
+              <option value="">Not checked</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="unknown">Unknown</option>
+            </select>
+          </label>
+          <label class="field">Does a country rule block the data?
+            <select data-path="data.countryBlock">
+              <option value="">Not checked</option>
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+              <option value="unknown">Unknown</option>
+            </select>
+          </label>
+          <label class="field span-2">Countries and data residency
+            <input type="text" data-path="data.countries">
+          </label>
+        </div>
+        <div class="gate-status" data-status-for="g2" aria-live="polite"></div>
+        <div class="gate-nav"><button type="button" class="btn" data-go="g1">Back</button><button type="button" class="btn btn-primary" data-go="g3">Next: Value and AI quality</button></div>
+      </section>
+
+      <!-- Gate 3: Value and AI quality -->
+      <section class="gate" id="gate-g3" data-gate="g3" aria-labelledby="h-g3" hidden>
+        <header class="gate-head">
+          <p class="gate-num">Gate 3</p>
+          <h2 id="h-g3">Value and AI quality</h2>
+          <p class="gate-purpose" data-purpose="g3"></p>
+        </header>
+        <div class="rules-card" data-rules-for="g3"></div>
+        <fieldset class="group">
+          <legend>Evals</legend>
+          <div class="grid">
+            <label class="field">Golden dataset size (questions)
+              <input type="number" min="0" data-path="value.goldenSetSize" data-type="number">
+            </label>
+            <label class="field">AI eval score (0 to 1)
+              <input type="number" min="0" max="1" step="0.01" data-path="value.evalScore" data-type="number">
+            </label>
+            <label class="field">Baseline score to beat (0 to 1)
+              <input type="number" min="0" max="1" step="0.01" data-path="value.baselineScore" data-type="number">
+              <span class="hint">Today's way of answering: an analyst template, rules, or search.</span>
+            </label>
+          </div>
+        </fieldset>
+        <fieldset class="group">
+          <legend>Tech spike and demand</legend>
+          <div class="grid">
+            <label class="field">p95 latency (ms)
+              <input type="number" min="0" step="100" data-path="value.latencyP95Ms" data-type="number">
+            </label>
+            <label class="field">Meets the scale target?
+              <select data-path="value.scaleOk">
+                <option value="">Not tested</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </label>
+            <label class="field">Fake-door or smoke test conversion (%)
+              <input type="number" min="0" max="100" step="0.1" data-path="value.smokeConversionPct" data-type="number">
+            </label>
+          </div>
+        </fieldset>
+        <div class="gate-status" data-status-for="g3" aria-live="polite"></div>
+        <div class="gate-nav"><button type="button" class="btn" data-go="g2">Back</button><button type="button" class="btn btn-primary" data-go="g4">Next: Economics</button></div>
+      </section>
+
+      <!-- Gate 4: Economics -->
+      <section class="gate" id="gate-g4" data-gate="g4" aria-labelledby="h-g4" hidden>
+        <header class="gate-head">
+          <p class="gate-num">Gate 4</p>
+          <h2 id="h-g4">Economics</h2>
+          <p class="gate-purpose" data-purpose="g4"></p>
+        </header>
+        <div class="rules-card" data-rules-for="g4"></div>
+        <fieldset class="group">
+          <legend>Market size</legend>
+          <div class="grid grid-3">
+            <label class="field">TAM (AUD)
+              <input type="number" min="0" step="1000000" data-path="economics.tam" data-type="number">
+            </label>
+            <label class="field">SAM (% of TAM)
+              <input type="number" min="0" max="100" step="0.1" data-path="economics.samPct" data-type="number">
+            </label>
+            <label class="field">SOM (% of SAM)
+              <input type="number" min="0" max="100" step="0.1" data-path="economics.somPct" data-type="number">
+            </label>
+          </div>
+        </fieldset>
+        <fieldset class="group">
+          <legend>Willingness to pay (Van Westendorp)</legend>
+          <label class="field">One respondent per line: too cheap, cheap, expensive, too expensive
+            <textarea rows="6" class="mono" data-path="economics.responses"></textarea>
+          </label>
+        </fieldset>
+        <fieldset class="group">
+          <legend>Unit economics</legend>
+          <div class="grid grid-3">
+            <label class="field">Tokens in per call
+              <input type="number" min="0" step="100" data-path="economics.tokensIn" data-type="number">
+            </label>
+            <label class="field">Tokens out per call
+              <input type="number" min="0" step="100" data-path="economics.tokensOut" data-type="number">
+            </label>
+            <label class="field">Model calls per use
+              <input type="number" min="1" data-path="economics.callsPerUse" data-type="number">
+            </label>
+            <label class="field">Price in per million tokens (AUD)
+              <input type="number" min="0" step="0.01" data-path="economics.priceInPerM" data-type="number">
+            </label>
+            <label class="field">Price out per million tokens (AUD)
+              <input type="number" min="0" step="0.01" data-path="economics.priceOutPerM" data-type="number">
+            </label>
+            <label class="field">Other run cost per use (AUD)
+              <input type="number" min="0" step="0.01" data-path="economics.otherCostPerUse" data-type="number">
+            </label>
+            <label class="field">Uses per client per year
+              <input type="number" min="0" data-path="economics.usesPerClientYear" data-type="number">
+            </label>
+            <label class="field">Support cost per client per year (AUD)
+              <input type="number" min="0" step="500" data-path="economics.supportCostPerClientYear" data-type="number">
+            </label>
+            <label class="field">Annual revenue per client (AUD)
+              <input type="number" min="0" step="500" data-path="economics.annualRevenue" data-type="number">
+              <button type="button" class="link-btn" id="btn-use-vw">Use the Van Westendorp optimal price</button>
+            </label>
+          </div>
+        </fieldset>
+        <fieldset class="group">
+          <legend>Product vs bespoke build</legend>
+          <div class="grid grid-3">
+            <label class="field">One-off build cost (AUD)
+              <input type="number" min="0" step="5000" data-path="economics.buildCost" data-type="number">
+            </label>
+            <label class="field">Bespoke cost per client (AUD)
+              <input type="number" min="0" step="1000" data-path="economics.bespokeCostPerClient" data-type="number">
+            </label>
+            <span></span>
+            <label class="field">New clients, year 1
+              <input type="number" min="0" data-path="economics.newClientsY1" data-type="number">
+            </label>
+            <label class="field">New clients, year 2
+              <input type="number" min="0" data-path="economics.newClientsY2" data-type="number">
+            </label>
+            <label class="field">New clients, year 3
+              <input type="number" min="0" data-path="economics.newClientsY3" data-type="number">
+            </label>
+          </div>
+        </fieldset>
+        <fieldset class="group">
+          <legend>Mini business case: CLV and CAC</legend>
+          <div class="grid">
+            <label class="field">Expected client lifetime (years)
+              <input type="number" min="0" step="0.5" data-path="economics.lifetimeYears" data-type="number">
+            </label>
+            <label class="field">Or annual churn (%)
+              <input type="number" min="0" max="100" step="1" data-path="economics.churnPct" data-type="number">
+              <span class="hint">Used when no lifetime is given: lifetime = 1 / churn.</span>
+            </label>
+            <label class="field">Acquisition spend (AUD)
+              <input type="number" min="0" step="1000" data-path="economics.acquisitionSpend" data-type="number">
+              <span class="hint">Sales, pre-sales, and onboarding effort for a recent cohort.</span>
+            </label>
+            <label class="field">New clients won from that spend
+              <input type="number" min="0" data-path="economics.newClientsWon" data-type="number">
+            </label>
+          </div>
+        </fieldset>
+        <div class="derived" id="derived" aria-live="polite"></div>
+        <div class="gate-status" data-status-for="g4" aria-live="polite"></div>
+        <div class="gate-nav"><button type="button" class="btn" data-go="g3">Back</button><button type="button" class="btn btn-primary" data-go="decision">Next: Decision</button></div>
+      </section>
+
+      <!-- Decision -->
+      <section class="gate" id="gate-decision" data-gate="decision" aria-labelledby="h-decision" hidden>
+        <header class="gate-head">
+          <p class="gate-num">Decision</p>
+          <h2 id="h-decision">Evidence pack</h2>
+          <p class="gate-purpose">The recommendation follows the stop rules you set before each gate. Record who decided and what would make you revisit it.</p>
+        </header>
+        <div class="grid no-print">
+          <label class="field">Decider
+            <input type="text" data-path="decision.decider">
+          </label>
+          <label class="field">Decision date
+            <input type="date" data-path="decision.date">
+          </label>
+          <label class="field span-2">Revisit when
+            <input type="text" data-path="decision.revisitTrigger" placeholder="The signal that would reopen this decision">
+          </label>
+          <label class="field span-2">Notes
+            <textarea rows="2" data-path="decision.notes"></textarea>
+          </label>
+        </div>
+        <div class="pack-actions no-print">
+          <button type="button" class="btn btn-primary" id="btn-download">Download Markdown</button>
+          <button type="button" class="btn" id="btn-print">Print or save as PDF</button>
+          <button type="button" class="btn" id="btn-log">Add to decision log</button>
+        </div>
+        <article class="pack" id="pack" aria-label="Evidence pack"></article>
+        <div class="gate-nav no-print"><button type="button" class="btn" data-go="g4">Back</button><span></span></div>
+      </section>
+    </div>
+
+    <!-- Portfolio metrics -->
+    <section id="view-portfolio" hidden aria-labelledby="h-portfolio">
+      <header class="gate-head">
+        <p class="gate-num">Portfolio</p>
+        <h2 id="h-portfolio">Measuring the quality of a no</h2>
+        <p class="gate-purpose">A good process says no early and cheaply, checks its stops, and gets more yeses right than before. Each decision you log lands here.</p>
+      </header>
+      <div class="pack-actions">
+        <button type="button" class="btn" id="btn-sample-log">Load sample portfolio</button>
+        <label class="field inline">Past productisation hit rate (%)
+          <input type="number" min="0" max="100" id="baseline-hit-rate">
+        </label>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="panel">
+        <h3>Where ideas stop</h3>
+        <div id="stop-bars"></div>
+      </div>
+      <div class="panel">
+        <h3>Quarterly audit of stopped ideas</h3>
+        <p class="hint">Recheck a random sample of this quarter's stops. Did any deserve a yes?</p>
+        <div class="pack-actions">
+          <label class="field inline">Quarter
+            <select id="audit-quarter"></select>
+          </label>
+          <button type="button" class="btn btn-small" id="btn-audit">Draw a sample of 3</button>
+        </div>
+        <ul id="audit-list" class="audit"></ul>
+      </div>
+      <div class="panel">
+        <h3>Decision log</h3>
+        <div class="table-wrap"><table class="log" id="log-table"></table></div>
+      </div>
+      <p><button type="button" class="link-btn danger" id="btn-clear">Clear all data saved in this browser</button></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Built by Samuel Sida. A static app: no backend, no tracking, and drafts stay in your browser. <a href="https://github.com/Sam-Sida/product-validation-gates">Method and source on GitHub</a>.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
